@@ -1050,6 +1050,11 @@ namespace LibGit2Sharp.Core
 
         #region git_odb_
 
+        public static void git_odb_backend_one_pack(ObjectDatabaseSafeHandle odb, string packIndexFilePath)
+        {
+            Ensure.ZeroResult(NativeMethods.git_odb_backend_one_pack(odb, packIndexFilePath));
+        }
+
         public static void git_odb_add_backend(ObjectDatabaseSafeHandle odb, IntPtr backend, int priority)
         {
             Ensure.ZeroResult(NativeMethods.git_odb_add_backend(odb, backend, priority));

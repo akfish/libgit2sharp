@@ -25,10 +25,19 @@ namespace LibGit2Sharp
         protected ObjectDatabase()
         { }
 
-        internal ObjectDatabase(Repository repo)
+        internal ObjectDatabase(Repository repo, Pack pack = null)
         {
             this.repo = repo;
-            handle = Proxy.git_repository_odb(repo.Handle);
+            if (pack == null)
+            {
+                //Make a full repo odb
+                handle = Proxy.git_repository_odb(repo.Handle);
+            }
+            else
+            {
+                //Make a single pack odb
+                handle = Proxy.git_odb_backend_one_pack(pack.PackIdxFilePath);
+            }
 
             repo.RegisterForCleanup(handle);
         }
@@ -42,7 +51,7 @@ namespace LibGit2Sharp
         public virtual IEnumerator<GitObject> GetEnumerator()
         {
             ICollection<GitOid> oids = Proxy.git_odb_foreach(handle,
-                ptr => (GitOid) Marshal.PtrToStructure(ptr, typeof (GitOid)));
+                ptr => (GitOid)Marshal.PtrToStructure(ptr, typeof(GitOid)));
 
             return oids
                 .Select(gitOid => repo.Lookup<GitObject>(new ObjectId(gitOid)))

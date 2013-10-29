@@ -1050,9 +1050,14 @@ namespace LibGit2Sharp.Core
 
         #region git_odb_
 
-        public static void git_odb_backend_one_pack(ObjectDatabaseSafeHandle odb, string packIndexFilePath)
+        public static ObjectDatabaseSafeHandle git_odb_backend_one_pack(string packIndexFilePath)
         {
-            Ensure.ZeroResult(NativeMethods.git_odb_backend_one_pack(odb, packIndexFilePath));
+            using (ThreadAffinity())
+            {
+                ObjectDatabaseSafeHandle odb;
+                Ensure.ZeroResult(NativeMethods.git_odb_backend_one_pack(out odb, packIndexFilePath));
+                return odb;
+            }
         }
 
         public static void git_odb_add_backend(ObjectDatabaseSafeHandle odb, IntPtr backend, int priority)
@@ -1428,7 +1433,7 @@ namespace LibGit2Sharp.Core
 
         public static TagFetchMode git_remote_autotag(RemoteSafeHandle remote)
         {
-            return (TagFetchMode) NativeMethods.git_remote_autotag(remote);
+            return (TagFetchMode)NativeMethods.git_remote_autotag(remote);
         }
 
         public static RemoteSafeHandle git_remote_create(RepositorySafeHandle repo, string name, string url)
@@ -1984,7 +1989,7 @@ namespace LibGit2Sharp.Core
         {
             using (ThreadAffinity())
             {
-                int res = NativeMethods.git_stash_drop(repo, (UIntPtr) index);
+                int res = NativeMethods.git_stash_drop(repo, (UIntPtr)index);
                 Ensure.BooleanResult(res);
             }
         }

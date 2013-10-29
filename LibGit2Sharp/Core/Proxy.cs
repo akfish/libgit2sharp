@@ -1061,11 +1061,11 @@ namespace LibGit2Sharp.Core
             }
         }
 
-        public static IntPtr git_odb_backend_one_pack(string packIndexFilePath)
+        public static PackBackendSafeHandle git_odb_backend_one_pack(string packIndexFilePath)
         {
             using (ThreadAffinity())
             {
-                IntPtr backend;
+                PackBackendSafeHandle backend;
                 Ensure.ZeroResult(NativeMethods.git_odb_backend_one_pack(out backend, packIndexFilePath));
                 return backend;
             }

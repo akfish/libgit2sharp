@@ -39,9 +39,10 @@ namespace LibGit2Sharp
                 handle = Proxy.git_odb_new();
 
                 //Make a single pack backend
-                IntPtr backendPtr = Proxy.git_odb_backend_one_pack(pack.PackIdxFilePath);
+                PackBackendSafeHandle backend = Proxy.git_odb_backend_one_pack(pack.PackIdxFilePath);
                 //Add backend
-                Proxy.git_odb_add_backend(handle, backendPtr, 1);
+                Proxy.git_odb_add_backend(handle, backend.DangerousGetHandle(), 1);
+                
             }
 
             repo.RegisterForCleanup(handle);

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using LibGit2Sharp.Core;
 using LibGit2Sharp.Core.Compat;
@@ -38,6 +39,7 @@ namespace LibGit2Sharp
         private readonly SubmoduleCollection submodules;
         private static readonly Lazy<string> versionRetriever = new Lazy<string>(RetrieveVersion);
         private readonly Lazy<PathCase> pathCase;
+        private readonly Lazy<PackCollection> packs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class, providing ooptional behavioral overrides through <paramref name="options"/> parameter.
@@ -118,6 +120,7 @@ namespace LibGit2Sharp
                 network = new Lazy<Network>(() => new Network(this));
                 pathCase = new Lazy<PathCase>(() => new PathCase(this));
                 submodules = new SubmoduleCollection(this);
+                packs = new Lazy<PackCollection>(() => new PackCollection(this));
 
                 EagerlyLoadTheConfigIfAnyPathHaveBeenPassed(options);
             }
@@ -210,6 +213,11 @@ namespace LibGit2Sharp
         {
             get { return config.Value; }
         }
+
+        /// <summary>
+        /// Gets the .git folder path to this repository 
+        /// </summary>
+        public string RepoPath { get { return Proxy.git_repository_path(handle).Native; } }
 
         /// <summary>
         /// Gets the index.
@@ -331,6 +339,14 @@ namespace LibGit2Sharp
         public SubmoduleCollection Submodules
         {
             get { return submodules; }
+        }
+
+        /// <summary>
+        /// Pack files in the repository.
+        /// </summary>
+        public PackCollection Packs
+        {
+            get { return packs.Value; }
         }
 
         #region IDisposable Members
@@ -559,7 +575,7 @@ namespace LibGit2Sharp
             Credentials credentials = null)
         {
             CheckoutCallbacks checkoutCallbacks = CheckoutCallbacks.GenerateCheckoutCallbacks(onCheckoutProgress, null);
-            
+
             var callbacks = new RemoteCallbacks(null, onTransferProgress, null, credentials);
             GitRemoteCallbacks gitCallbacks = callbacks.GenerateCallbacks();
 
